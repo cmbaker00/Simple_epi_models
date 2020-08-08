@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from scipy.optimize import fsolve
 
+
 class SIR_model:
     def __init__(self, beta=2., gamma=1., s0=.9999, i0=.0001):
         self.R0 = beta/gamma
@@ -32,6 +33,12 @@ class SIR_model:
         def fun(r_inf):
             return r_inf - (1 - np.exp(-self.R0*r_inf))
         return fsolve(fun, np.array(0.5))[0]
+
+
+class SIR_model_R0(SIR_model):
+    def __init__(self, R0 = 2.53):
+        SIR_model.__init__(self, beta=R0, gamma=1)
+
 if __name__ == "__main__":
     model = SIR_model(beta=1.1, gamma=1)
     plt.plot(model.solve_system(t_end=20))
@@ -44,3 +51,4 @@ if __name__ == "__main__":
         total_inf.append(SIR_model(beta=beta_value, gamma=1).est_total_infected())
     plt.plot(beta_array, total_inf)
     plt.show()
+    print(SIR_model_R0().est_total_infected())
