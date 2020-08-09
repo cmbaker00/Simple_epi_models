@@ -27,6 +27,8 @@ class SIR_model:
         return odeint(self.ode_rhs, self.IC,
                       t=np.linspace(0,t_end,100))
 
+    # http://pages.physics.cornell.edu/~myers/teaching/ComputationalMethods/ComputerExercises/SIR/SIR.html
+    #  $t\to\infty$: $R(infinity) = 1-exp(-R_0 * R(infinity))$
     def est_total_infected(self):
         if self.R0 < 1:
             return 0
@@ -37,7 +39,7 @@ class SIR_model:
 
 class SIR_model_R0(SIR_model):
     def __init__(self, R0 = 2.53):
-        SIR_model.__init__(self, beta=R0, gamma=1)
+        super().__init__(beta=R0, gamma=1)
 
 if __name__ == "__main__":
     model = SIR_model(beta=1.1, gamma=1)
