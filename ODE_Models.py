@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from scipy.optimize import fsolve
+import pandas as pd
 
 
 class SIR_model:
@@ -24,8 +25,9 @@ class SIR_model:
                 self.gamma*i]
 
     def solve_system(self, t_end=10):
-        return odeint(self.ode_rhs, self.IC,
-                      t=np.linspace(0,t_end,100))
+        tvals = np.linspace(0, t_end, 100)
+        return tvals, odeint(self.ode_rhs, self.IC,
+                      t=tvals)
 
     # http://pages.physics.cornell.edu/~myers/teaching/ComputationalMethods/ComputerExercises/SIR/SIR.html
     #  $t\to\infty$: $R(infinity) = 1-exp(-R_0 * R(infinity))$
@@ -42,15 +44,25 @@ class SIR_model_R0(SIR_model):
         super().__init__(beta=R0, gamma=1)
 
 if __name__ == "__main__":
-    model = SIR_model(beta=1.1, gamma=1)
-    plt.plot(model.solve_system(t_end=20))
+    model = SIR_model(beta=2.5, gamma=1)
+    time, vals = model.solve_system(t_end=8)
+    # susceptible, infected, recovered = vals
+    # new_infections = vals[:,0][0:-1] - vals[:,0][1:]
+    plt.plot(time, vals)
+    plt.legend(['S', 'I', 'R'])
+    plt.xlabel('Time')
+    plt.ylabel('Proportion of population')
+    plt.savefig('SIR_plot.png')
     plt.show()
-    print(model.R0)
-    print(model.est_total_infected())
-    beta_array = np.linspace(0,2.53,50)
-    total_inf = []
-    for beta_value in beta_array:
-        total_inf.append(SIR_model(beta=beta_value, gamma=1).est_total_infected())
-    plt.plot(beta_array, total_inf)
-    plt.show()
-    print(SIR_model_R0().est_total_infected())
+    df = pd.DataFrame(np.append(np.reshape(time, (100,-1)), vals, axis=1))
+    df.columns = ['Time', 'Suceptible', 'Infected', 'Recovered']
+    df.to_csv('SIR_data.csv', index=0, index_label=None)
+    # print(model.R0)
+    # print(model.est_total_infected())
+    # beta_array = np.linspace(0,2.53,50)
+    # total_inf = []
+    # for beta_value in beta_array:
+    #     total_inf.append(SIR_model(beta=beta_value, gamma=1).est_total_infected())
+    # plt.plot(beta_array, total_inf)
+    # plt.show()
+    # print(SIR_model_R0().est_total_infected())
